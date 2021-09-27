@@ -1,5 +1,6 @@
 import exception.NotInitializedException;
 
+import java.security.InvalidParameterException;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -25,7 +26,7 @@ public class Histogram {
 
         String inputdata=readInputData();
 
-        HashMap<String,Integer> amounts=new LinkedHashMap<>();
+        HashMap<Character,Integer> amounts=new LinkedHashMap<>();
         // 레이블-도수 셋트별로 split
         String[] pairs=inputdata.split(" ");
 
@@ -34,7 +35,8 @@ public class Histogram {
         for(String pair : pairs){
             String[] splits=pair.split(":");
             int value=Integer.parseInt(splits[1]);
-            amounts.put(splits[0],value);
+            char label=getLabel(splits[0]);
+            amounts.put(label,value);
             maxVal=Math.max(maxVal,value);
         }
 
@@ -45,21 +47,28 @@ public class Histogram {
         histogram.values().stream().forEach(System.out::println);
     }
 
+    private char getLabel(String str) {
+        if(str.length()>1){
+            throw new IllegalArgumentException();
+        }
+        return str.charAt(0);
+    }
+
     private String readInputData(){
         Scanner scanner=new Scanner(System.in);
         System.out.println("히스토그램을 위한 데이터를 입력해주세요.\n입력형식: 레이블1:도수1 레이블2:도수2 ...");
         return scanner.nextLine();
     }
 
-    private void makeDataArea(int maxVal, HashMap<String,Integer> amounts) throws NotInitializedException {
-        for(Map.Entry<String,Integer> entry: amounts.entrySet()){
-            String label=entry.getKey();
+    private void makeDataArea(int maxVal, HashMap<Character,Integer> amounts) throws NotInitializedException {
+        for(Map.Entry<Character,Integer> entry: amounts.entrySet()){
+            char label=entry.getKey();
             int ratio=(int)(Math.round(((double)entry.getValue()/maxVal)*10));
             setDataForLabels(label,ratio);
         }
     }
 
-    private void setDataForLabels(String label, int ratio) throws NotInitializedException{
+    private void setDataForLabels(char label, int ratio) throws NotInitializedException{
         StringBuilder sb=null;
 
         for(int pointVal=-1; pointVal<=10; pointVal++){
